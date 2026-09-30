@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function Page(){return <main style={{maxWidth:760,margin:"70px auto",padding:24}}><h1>Termos de Uso</h1><p>Esta página deve ser revisada com os termos definitivos da operação Ventora antes do lançamento público.</p><p>Informações de projetos, projeções e riscos devem ser apresentadas de forma clara e verificável.</p><Link href="/cadastro">Voltar ao cadastro</Link></main>}
