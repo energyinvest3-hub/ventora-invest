@@ -209,3 +209,117 @@ export async function getPushinPayTransaction(id: string) {
   if (!response.ok) throw new PushinPayHttpError(response.status, providerMessage(body));
   return parseTransaction(body);
 }
+
+// === VENTORA PUSHINPAY CASHOUT v1 ===
+type PushinPayCashOut = {
+  id: string;
+  status: string;
+  value: number;
+  end_to_end_id?: string | null;
+  receiver_name?: string | null;
+};
+
+export class PushinPayCashOutError extends Error {
+  retrySafe: boolean;
+  httpStatus?: number;
+  constructor(message: string, options: { retrySafe: boolean; httpStatus?: number }) {
+    super(message);
+    this.name = "PushinPayCashOutError";
+    this.retrySafe = options.retrySafe;
+    this.httpStatus = options.httpStatus;
+  }
+}
+
+function normalizeCashOutPix(rawType: string, rawKey: string) {
+  const type = rawType.trim().toLowerCase();
+  const key = rawKey.trim();
+  const digits = key.replace(/\D/g, "");
+  if (type === "cpf") {
+    if (digits.length !== 11) throw new Error("A chave CPF precisa ter 11 dígitos.");
+    return { providerType: "national_registration", pixKey: digits, document: digits };
+  }
+  if (type === "email") {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) throw new Error("Informe um e-mail PIX válido.");
+    return { providerType: "email", pixKey: key.toLowerCase(), document: "" };
+  }
+  if (type === "phone") {
+    const phone = key.replace(/[^\d+]/g, "");
+    if (!/^\+?55\d{10,11}$/.test(phone)) throw new Error("Informe o telefone PIX com DDI +55.");
+    return { providerType: "phone", pixKey: phone.startsWith("+") ? phone : `+${phone}`, document: "" };
+  }
+  if (type === "random") {
+    if (!/^[0-9a-f-]{32,36}$/i.test(key)) throw new Error("Informe uma chave aleatória PIX válida.");
+    return { providerType: "evp", pixKey: key.toLowerCase(), document: "" };
+  }
+  throw new Error("Tipo de chave PIX inválido.");
+}
+
+export async function createPushinPayCashOut(input: {
+  valueCents: number;
+  pixKeyType: string;
+  pixKey: string;
+  receiverNationalRegistration: string;
+  webhookUrl: string;
+}) {
+  const { apiToken, baseUrl } = getPushinPayConfig();
+  const normalized = normalizeCashOutPix(input.pixKeyType, input.pixKey);
+  const providedDocument = input.receiverNationalRegistration.replace(/\D/g, "");
+  const document = normalized.document || providedDocument;
+
+  if (![11,14].includes(document.length)) throw new Error("Informe o CPF ou CNPJ do titular da chave PIX.");
+  if (normalized.document && providedDocument && normalized.document !== providedDocument) {
+    throw new Error("O CPF do titular precisa ser igual à chave PIX CPF.");
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/pix/cashOut`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        value: input.valueCents,
+        receiver_national_registration: document,
+        pix_key_type: normalized.providerType,
+        pix_key: normalized.pixKey,
+        webhook_url: input.webhookUrl,
+        device: Number(process.env.PUSHINPAY_DEVICE_ID?.trim() || "1"),
+      }),
+      cache: "no-store",
+    });
+  } catch {
+    throw new PushinPayCashOutError(
+      "Não foi possível confirmar se a PushinPay recebeu o saque. O valor ficou reservado para revisão.",
+      { retrySafe: false },
+    );
+  }
+
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new PushinPayCashOutError(
+      providerMessage(body) || `A PushinPay recusou o saque (HTTP ${response.status}).`,
+      { retrySafe: true, httpStatus: response.status },
+    );
+  }
+
+  const obj = asObject(body);
+  const value = Number(obj?.value);
+  if (!obj || typeof obj.id !== "string" || typeof obj.status !== "string" || !Number.isInteger(value) || value <= 0) {
+    throw new PushinPayCashOutError(
+      "A PushinPay confirmou o envio, mas respondeu em formato inesperado. Revise antes de tentar novamente.",
+      { retrySafe: false },
+    );
+  }
+
+  return {
+    id: obj.id,
+    status: obj.status,
+    value,
+    end_to_end_id: typeof obj.end_to_end_id === "string" ? obj.end_to_end_id : null,
+    receiver_name: typeof obj.receiver_name === "string" ? obj.receiver_name : null,
+  } satisfies PushinPayCashOut;
+}
+// === END VENTORA PUSHINPAY CASHOUT v1 ===

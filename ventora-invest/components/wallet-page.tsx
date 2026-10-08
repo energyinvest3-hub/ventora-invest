@@ -33,7 +33,6 @@ export function WalletPage() {
     holdings,
     wallet,
     transactions,
-    showToast,
   } = useApp();
   const [visible, setVisible] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
@@ -126,15 +125,9 @@ export function WalletPage() {
             <Link href="/carteira/adicionar" className="light">
               <Plus size={18} /> Adicionar saldo
             </Link>
-            <button
-              type="button"
-              className="dark"
-              onClick={() =>
-                showToast("O fluxo de saque será habilitado quando o gateway estiver configurado.")
-              }
-            >
+            <Link href="/carteira/saque" className="dark">
               <ArrowUpRight size={18} /> Sacar
-            </button>
+            </Link>
           </div>
         </article>
 
