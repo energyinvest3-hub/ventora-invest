@@ -57,18 +57,36 @@ export function AdminPage({records}:{records:AdminData}){
   async function verifyPix(){
     if(syncing) return;
     setSyncing(true);
-    setSyncInfo("");
+    setSyncInfo("Consultando transacoes e conferindo os IDs no gateway...");
     try{
       const response=await fetch("/api/cron/reconcile-pix",{
         method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"
       });
-      const result=await response.json();
-      if(!response.ok) throw new Error(result.error || "Falha ao consultar a PushinPay.");
-      setSyncInfo(`Consulta concluída: ${result.checked} verificados, ${result.credited} creditados, ${result.failed} erros. PIX só é creditado quando confirmado pelo gateway.`);
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok) throw new Error(String(result.error || `Erro HTTP ${response.status} no servidor.`));
+      const statuses=Object.entries(result.providerStatuses || {})
+        .map(([status,n])=>`${status}: ${n}`).join(", ");
+      const issues=(Array.isArray(result.issues) ? result.issues : []) as {gatewayId:string;stage:string;code:string}[];
+      const detail=issues.slice(0,5).map(item=>{
+        const meanings:Record<string,string>={
+          "HTTP_401":"Token PushinPay incorreto ou expirado no deploy",
+          "HTTP_403":"Acesso negado pela PushinPay: permissao, conta ou IP autorizado",
+          "HTTP_429":"Limite de consultas da PushinPay; espere antes de consultar novamente",
+          "TRANSACAO_NAO_ENCONTRADA":"ID nao encontrado nesse token/conta PushinPay",
+          "GATEWAY_RESPOSTA_INVALIDA":"A API retornou um formato inesperado",
+          "GATEWAY_REDE":"Falha de rede ao conectar a PushinPay"
+        };
+        return `${item.gatewayId.slice(0,8)}…: ${meanings[item.code] || item.code} (${item.stage})`;
+      }).join(" | ");
+      setSyncInfo(`Verificados: ${result.checked}; creditados: ${result.credited}; falhas: ${result.failed}; nao encontrados: ${result.notFound}. `+
+        `Status no gateway: ${statuses || "nenhum status retornado"}. `+
+        (detail ? `Diagnostico: ${detail}. ` : "")+
+        "Se o gateway responde created, compare os IDs com os PIX pagos na PushinPay; nao e seguro creditar apenas pelo valor.");
       router.refresh();
-    }catch(error){setSyncInfo(error instanceof Error ? error.message : "Erro ao verificar PIX.");}
+    }catch(error){setSyncInfo(error instanceof Error ? error.message : "Nao foi possivel verificar PIX.");}
     finally{setSyncing(false);}
   }
+
   const [tab,setTab]=useState<Tab>("Usuários");
   const [query,setQuery]=useState("");
   const rows=records[tabKey[tab]]||[];
@@ -90,7 +108,7 @@ export function AdminPage({records}:{records:AdminData}){
         {syncing ? "Consultando PushinPay..." : "Verificar pagamentos PIX agora"}
       </button>
       <button type="button" onClick={()=>router.refresh()}>Atualizar painel</button>
-      {syncInfo && <small role="status">{syncInfo}</small>}
+      {syncInfo && <small role="status" style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",maxWidth:"100%"}}>{syncInfo}</small>}
     </div>
     <div className="admin-tabs">{tabs.map(t=><button key={t} className={tab===t?"active":""} onClick={()=>{setTab(t);setQuery("")}}>{t}</button>)}</div>
     <section className="admin-table-card">
