@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ProjectImage } from "./project-image";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -25,9 +25,9 @@ export function ProjectCard({ project }: { project: WindProject }) {
   return (
     <article className="v2-project-card">
       <Link href={`/projetos/${project.id}`} className="v2-project-image">
-        <Image
+        <ProjectImage
+          projectId={project.id}
           src={project.image}
-          fill
           alt={`Parque eólico ${project.name}`}
           sizes="(max-width: 760px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />

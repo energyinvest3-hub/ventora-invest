@@ -35,6 +35,9 @@ export function Dashboard() {
     .filter((project) => ["ventos-sertao", "atlas-litoral", "litoral-potiguar"].includes(project.id))
     .sort((a, b) => a.unitValue - b.unitValue)
     .slice(0, 3);
+  const otherProjects = [...projects]
+    .filter((project) => !showcase.some((highlight) => highlight.id === project.id))
+    .sort((a, b) => a.unitValue - b.unitValue);
   const firstName = profile.name.split(" ")[0] || "Investidor";
 
   return (
@@ -137,6 +140,25 @@ export function Dashboard() {
       <div className="v2-project-grid">
         {showcase.map((project) => <ProjectCard key={project.id} project={project} />)}
       </div>
+
+      {otherProjects.length > 0 && (
+        <>
+          <section className="v2-feature-strip" aria-label="Outros parques eólicos">
+            <div>
+              <span><Wind size={17} /> MAIS PROJETOS</span>
+              <h2>Outros parques eólicos</h2>
+              <p>Conheça os demais {otherProjects.length} projetos cadastrados, do menor para o maior valor.</p>
+            </div>
+            <Link href="/projetos">Ver todos <ArrowUpRight size={17} /></Link>
+          </section>
+
+          <div className="v2-project-grid">
+            {otherProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        </>
+      )}
 
       <section className="v2-platform-benefits">
         <article>

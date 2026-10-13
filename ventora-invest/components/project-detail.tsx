@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ProjectImage } from "./project-image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -53,9 +53,9 @@ export function ProjectDetail({ id }: { id: string }) {
       <div className="v2-detail-grid">
         <section className="v2-detail-visual">
           <div className="v2-detail-image">
-            <Image
+            <ProjectImage
+              projectId={project.id}
               src={project.image}
-              fill
               alt={project.name}
               priority
               sizes="(max-width: 900px) 100vw, 55vw"
