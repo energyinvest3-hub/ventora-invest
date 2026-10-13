@@ -25,7 +25,7 @@ export function HoldingsPage() {
     if (holding.status !== "active") return sum;
     const project = projects.find((item) => item.id === holding.projectId);
     const projectedTotal = (project?.projectedScenario ?? 0) * holding.units;
-    return sum + Math.max(0, projectedTotal - holding.totalReceived);
+    return sum + Math.max(0, (holding.projectedTotalAtPurchase || projectedTotal) - holding.totalReceived);
   }, 0);
   const activeProjects = new Set(
     holdings.filter((holding) => holding.status === "active").map((holding) => holding.projectId),
@@ -82,7 +82,7 @@ export function HoldingsPage() {
           {holdings.map((holding) => {
             const project = projects.find((item) => item.id === holding.projectId);
             if (!project) return null;
-            const projectedTotal = project.projectedScenario * holding.units;
+            const projectedTotal = holding.projectedTotalAtPurchase || project.projectedScenario * holding.units;
             const projectedRemainingForHolding = Math.max(
               0,
               projectedTotal - holding.totalReceived,
@@ -99,6 +99,12 @@ export function HoldingsPage() {
                   <small>{project.city} · {project.region}</small>
                   <h3>{project.name}</h3>
                   <p>{holding.units} unidade(s) · {brl(holding.amount)}</p>
+                  <p style={{fontSize:12, marginTop:6}}>
+                    {holding.status === "active" && holding.nextCreditAt ? (
+                      <>Próximo crédito programado: <strong>{new Date(holding.nextCreditAt).toLocaleString("pt-BR", {day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</strong> ·
+                      Média por dia: {brl(projectedTotal / Math.max(1, holding.termDaysAtPurchase || project.termDays))}</>
+                    ) : holding.status === "finished" ? "Período concluído" : "Sem crédito programado"}
+                  </p>
                   <div className="holding-metrics">
                     <span>
                       <small>Recebido</small>

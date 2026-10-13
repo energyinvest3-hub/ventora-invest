@@ -20,6 +20,10 @@ export type Holding = {
   amount: number;
   totalReceived: number;
   startedAt: string;
+  nextCreditAt?: string | null;
+  projectedTotalAtPurchase?: number;
+  termDaysAtPurchase?: number;
+  creditDaysPaid?: number;
   status: "active" | "finished" | "cancelled";
 };
 

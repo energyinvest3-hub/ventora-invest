@@ -42,7 +42,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
       .eq("user_id", user.id)
       .maybeSingle(),
     db.from("user_projects")
-      .select("id,project_slug,quantity,amount_invested,total_received,started_at,status")
+      .select("id,project_slug,quantity,amount_invested,total_received,started_at,status,projected_total_at_purchase,term_days_at_purchase,credit_days_paid")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     db.from("wind_projects")
@@ -76,6 +76,12 @@ export default async function PlatformLayout({ children }: { children: React.Rea
     amount: Number(row.amount_invested),
     totalReceived: Number(row.total_received || 0),
     startedAt: String(row.started_at),
+    projectedTotalAtPurchase: Number(row.projected_total_at_purchase || 0),
+    termDaysAtPurchase: Number(row.term_days_at_purchase || 0),
+    creditDaysPaid: Number(row.credit_days_paid || 0),
+    nextCreditAt: row.status === "active" && Number(row.credit_days_paid || 0) < Number(row.term_days_at_purchase || 0)
+      ? new Date(new Date(row.started_at).getTime() + (Number(row.credit_days_paid || 0)+1)*86400000).toISOString()
+      : null,
     status:
       row.status === "finished"
         ? "finished"

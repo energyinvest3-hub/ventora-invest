@@ -146,8 +146,8 @@ export function getPushinPayConfig() {
 export function pushinPayWebhookUrl(request: Request) {
   const { webhookSecret } = getPushinPayConfig();
   const explicit = process.env.PUSHINPAY_WEBHOOK_URL?.trim();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  const base = explicit || (siteUrl ? `${siteUrl.replace(/\/+$/, "")}/api/webhooks/pushinpay` : new URL("/api/webhooks/pushinpay", request.url).toString());
+  // Origem da requisição na produção atual; evita callback apontando a um domínio antigo.
+  const base = new URL("/api/webhooks/pushinpay", request.url).toString();
   const url = new URL(base);
 
   if (url.protocol !== "https:" && process.env.NODE_ENV === "production") {
