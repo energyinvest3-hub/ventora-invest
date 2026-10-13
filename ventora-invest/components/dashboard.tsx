@@ -31,8 +31,10 @@ export function Dashboard() {
   const total = holdings.reduce((sum, holding) => sum + holding.amount, 0);
   const totalCapacity = projects.reduce((sum, project) => sum + project.capacityMw, 0);
   const available = projects.filter((project) => project.status === "available");
-  const featured = projects.filter((project) => project.featured).slice(0, 6);
-  const showcase = featured.length >= 3 ? featured : available.slice(0, 6);
+  const showcase = projects
+    .filter((project) => ["ventos-sertao", "atlas-litoral", "litoral-potiguar"].includes(project.id))
+    .sort((a, b) => a.unitValue - b.unitValue)
+    .slice(0, 3);
   const firstName = profile.name.split(" ")[0] || "Investidor";
 
   return (
