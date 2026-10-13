@@ -146,9 +146,14 @@ export function getPushinPayConfig() {
 export function pushinPayWebhookUrl(request: Request) {
   const { webhookSecret } = getPushinPayConfig();
   const explicit = process.env.PUSHINPAY_WEBHOOK_URL?.trim();
-  // Origem da requisição na produção atual; evita callback apontando a um domínio antigo.
-  const base = new URL("/api/webhooks/pushinpay", request.url).toString();
+  // Sempre use o domínio público em produção. URL da request pode ser o domínio de preview da Vercel.
+  const base = process.env.VERCEL_ENV === "production"
+    ? "https://www.ventorainvest.shop/api/webhooks/pushinpay"
+    : (explicit || new URL("/api/webhooks/pushinpay", request.url).toString());
   const url = new URL(base);
+  if (url.pathname !== "/api/webhooks/pushinpay") {
+    throw new Error("PUSHINPAY_WEBHOOK_URL_INVALID");
+  }
 
   if (url.protocol !== "https:" && process.env.NODE_ENV === "production") {
     throw new Error("PUSHINPAY_WEBHOOK_HTTPS_REQUIRED");

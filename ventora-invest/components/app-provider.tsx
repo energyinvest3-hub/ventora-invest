@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type {
   Holding,
   Profile,
@@ -45,6 +46,7 @@ export function AppProvider({
   initialProjects: WindProject[];
   initialTransactions: WalletTransaction[];
 }) {
+  const router = useRouter();
   const projectedRemaining = initialHoldings.reduce((sum, holding) => {
     if (holding.status !== "active") return sum;
     const project = initialProjects.find((item) => item.id === holding.projectId);
@@ -84,6 +86,29 @@ export function AppProvider({
     holdings: initialHoldings,
     toast: null,
   });
+
+  // Sincroniza o estado local quando o servidor renderiza dados novos; não depende
+  // de um webhook ter acontecido dentro da mesma aba.
+  useEffect(() => {
+    setState((current) => ({
+      ...current,
+      balance: initialWallet.balance,
+      futureBalance: projectedRemaining,
+      holdings: initialHoldings,
+    }));
+  }, [initialWallet.balance, projectedRemaining, initialHoldings]);
+
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    const interval = window.setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [router]);
 
   const showToast = (message: string) => {
     setState((current) => ({ ...current, toast: message }));

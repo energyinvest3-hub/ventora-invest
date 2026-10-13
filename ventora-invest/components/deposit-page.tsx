@@ -83,7 +83,7 @@ export function DepositPage() {
     };
 
     void check();
-    const timer = window.setInterval(check, 3500);
+    const timer = window.setInterval(check, 70000);
     return () => {
       stopped = true;
       window.clearInterval(timer);

@@ -75,12 +75,19 @@ export async function POST(request: Request) {
         try {
           const transaction = await getPushinPayTransaction(String((claim as { gatewayId: string }).gatewayId));
           if (transaction) {
-            await admin.rpc("settle_pushinpay_deposit", {
+            if (String(transaction.status).toLowerCase() === "paid" && deposit.status === "cancelled") {
+              const {data:restored,error:restoreError} = await admin.rpc("reopen_pushinpay_local_cancelled",{
+                p_gateway_id:transaction.id,p_value_cents:transaction.value,
+              });
+              if (restoreError || !restored) throw new Error("Falha ao revisar PIX cancelado localmente.");
+            }
+            const {error:settleError} = await admin.rpc("settle_pushinpay_deposit", {
               p_gateway_id: transaction.id,
               p_value_cents: transaction.value,
               p_status: transaction.status,
               p_end_to_end_id: transaction.end_to_end_id ?? null,
             });
+            if (settleError) throw settleError;
           }
         } catch (error) {
           console.error("PushinPay direct status fallback error", error);

@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Activity, ArrowDownLeft, Gift, Search, ShieldCheck, Users, Wallet, Wind } from "lucide-react";
 
 type Row = Record<string, unknown>;
@@ -44,6 +45,30 @@ function detail(row:Row, tab:Tab){
 }
 
 export function AdminPage({records}:{records:AdminData}){
+  const router = useRouter();
+  const [syncing,setSyncing]=useState(false);
+  const [syncInfo,setSyncInfo]=useState("");
+  useEffect(()=>{
+    const update=()=>{if(document.visibilityState === "visible") router.refresh();};
+    const timer=window.setInterval(update,20000);
+    window.addEventListener("focus",update);
+    return ()=>{window.clearInterval(timer);window.removeEventListener("focus",update);};
+  },[router]);
+  async function verifyPix(){
+    if(syncing) return;
+    setSyncing(true);
+    setSyncInfo("");
+    try{
+      const response=await fetch("/api/cron/reconcile-pix",{
+        method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"
+      });
+      const result=await response.json();
+      if(!response.ok) throw new Error(result.error || "Falha ao consultar a PushinPay.");
+      setSyncInfo(`Consulta concluída: ${result.checked} verificados, ${result.credited} creditados, ${result.failed} erros. PIX só é creditado quando confirmado pelo gateway.`);
+      router.refresh();
+    }catch(error){setSyncInfo(error instanceof Error ? error.message : "Erro ao verificar PIX.");}
+    finally{setSyncing(false);}
+  }
   const [tab,setTab]=useState<Tab>("Usuários");
   const [query,setQuery]=useState("");
   const rows=records[tabKey[tab]]||[];
@@ -59,6 +84,13 @@ export function AdminPage({records}:{records:AdminData}){
       <div className="admin-kpi"><span><ArrowDownLeft/></span><small>Depósitos confirmados</small><strong>{money(sum(deposits.filter(r=>r.status==="completed"),"amount"))}</strong><em>{deposits.filter(r=>r.status==="completed").length} PIX pagos</em></div>
       <div className="admin-kpi"><span><Activity/></span><small>Transações</small><strong>{tx.length}</strong><em>histórico financeiro</em></div>
       <div className="admin-kpi"><span><Gift/></span><small>Indicações</small><strong>{refs.length}</strong><em>{refs.filter(r=>Boolean(r.qualified)).length} qualificadas</em></div>
+    </div>
+    <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:12,margin:"18px 0"}}>
+      <button type="button" className="primary" disabled={syncing} onClick={verifyPix}>
+        {syncing ? "Consultando PushinPay..." : "Verificar pagamentos PIX agora"}
+      </button>
+      <button type="button" onClick={()=>router.refresh()}>Atualizar painel</button>
+      {syncInfo && <small role="status">{syncInfo}</small>}
     </div>
     <div className="admin-tabs">{tabs.map(t=><button key={t} className={tab===t?"active":""} onClick={()=>{setTab(t);setQuery("")}}>{t}</button>)}</div>
     <section className="admin-table-card">

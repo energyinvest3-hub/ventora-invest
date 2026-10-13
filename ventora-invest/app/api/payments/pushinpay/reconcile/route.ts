@@ -57,12 +57,19 @@ export async function POST(request: Request) {
       try {
         const transaction = await getPushinPayTransaction(String((claim as { gatewayId: string }).gatewayId));
         if (!transaction) continue;
-        const { data: settled } = await admin.rpc("settle_pushinpay_deposit", {
+        if (String(transaction.status).toLowerCase() === "paid" && row.status === "cancelled") {
+          const {data:restored,error:restoreError}=await admin.rpc("reopen_pushinpay_local_cancelled",{
+            p_gateway_id:transaction.id,p_value_cents:transaction.value,
+          });
+          if(restoreError || !restored) throw new Error("Não foi possível revisar PIX localmente cancelado.");
+        }
+        const { data: settled, error: settleError } = await admin.rpc("settle_pushinpay_deposit", {
           p_gateway_id: transaction.id,
           p_value_cents: transaction.value,
           p_status: transaction.status,
           p_end_to_end_id: transaction.end_to_end_id ?? null,
         });
+        if (settleError) throw settleError;
         if (settled && typeof settled === "object" && (settled as { credited?: boolean }).credited) credited += 1;
         if (settled && typeof settled === "object" && (settled as { cancelled?: boolean }).cancelled) cancelled += 1;
       } catch (error) {

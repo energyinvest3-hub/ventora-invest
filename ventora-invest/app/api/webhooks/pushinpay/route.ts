@@ -32,6 +32,20 @@ export async function POST(request: Request) {
       return Response.json({ received: true, kind: "cashout", result: withdrawalData });
     }
 
+    if (String(event.status).toLowerCase() === "paid") {
+      const {data:localCancelled,error:lookupError}=await admin.from("deposits")
+        .select("id,status,provider_status")
+        .eq("gateway_id",event.id)
+        .eq("provider","pushinpay")
+        .maybeSingle();
+      if(lookupError) return Response.json({error:"Consulta PIX indisponível."},{status:503});
+      if(localCancelled?.status === "cancelled") {
+        const {data:restored,error:restoreError}=await admin.rpc("reopen_pushinpay_local_cancelled",{
+          p_gateway_id:event.id,p_value_cents:event.value,
+        });
+        if(restoreError || !restored) return Response.json({error:"PIX cancelado localmente exige revisão."},{status:503});
+      }
+    }
     const { data, error } = await admin.rpc("settle_pushinpay_deposit", {
       p_gateway_id: event.id,
       p_value_cents: event.value,
