@@ -164,3 +164,25 @@
 .withdraw-primary{width:100%;min-height:48px;border:0;border-radius:14px;background:linear-gradient(135deg,#0b8f84,#13b2a1);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:900;cursor:pointer}.withdraw-primary:disabled{opacity:.45;cursor:not-allowed}.withdraw-error{color:#bd4c4c;font-size:10px;margin:6px 0 0}.withdraw-success{text-align:center;padding:42px 28px}.withdraw-success>svg{color:#0b9b8d;margin-bottom:12px}.withdraw-success .withdraw-primary{margin-top:18px}
 @media(max-width:600px){.withdraw-card{padding:18px}.withdraw-page>header h1{font-size:34px}}
 /* === END VENTORA SAQUE PIX v1 === */
+
+
+/* Ventora: janela de saque e campanha de destaques — V7 */
+.ventora-withdrawal-rules{margin:14px 0;padding:16px 18px;border:1px solid #b9dad6;border-radius:14px;background:#f0faf7;color:#173d3b}
+.ventora-withdrawal-rules p{margin:8px 0;line-height:1.45}
+.ventora-withdrawal-rules small{display:block;color:#526d6b;line-height:1.5}
+.ventora-promo-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(6,26,29,.72);backdrop-filter:blur(5px)}
+.ventora-promo-modal{position:relative;max-width:630px;width:100%;max-height:90vh;overflow-y:auto;border-radius:23px;background:#fff;padding:clamp(22px,4vw,35px);box-shadow:0 32px 90px rgba(0,0,0,.24);color:#08262e}
+.ventora-promo-close{position:absolute;right:17px;top:14px;border:0;background:#eaf5f2;border-radius:50%;width:36px;height:36px;font-size:26px;cursor:pointer;color:#063c38;display:flex;align-items:center;justify-content:center}
+.ventora-promo-eyebrow{display:inline-block;margin-bottom:12px;color:#168979;font-size:12px;font-weight:800;letter-spacing:.07em}
+.ventora-promo-modal h2{font-size:clamp(24px,4vw,33px);line-height:1.13;margin:0 0 12px;font-weight:800}
+.ventora-promo-modal p{color:#647a7e;line-height:1.52;margin:0 0 18px}
+.ventora-promo-projects{display:grid;gap:11px;margin:16px 0}
+.ventora-promo-project{display:flex;gap:12px;align-items:center;justify-content:space-between;color:inherit;text-decoration:none;padding:15px 16px;border:1px solid #d4e8e2;border-radius:14px;background:#f6fbf9}
+.ventora-promo-project>span{display:flex;flex-direction:column;gap:5px}
+.ventora-promo-project>span:last-child{text-align:right}
+.ventora-promo-project strong{font-size:16px}
+.ventora-promo-project small{font-size:12px;color:#6c8285}
+.ventora-promo-project>span:last-child strong{color:#0b9383}
+.ventora-promo-note{display:block;font-size:12px;color:#718b90;line-height:1.5;margin-bottom:16px}
+.ventora-promo-cta{cursor:pointer;background:#078e83;color:#fff;font-weight:750;border:0;border-radius:12px;padding:14px 18px;width:100%;font-size:15px}
+@media(max-width:540px){.ventora-promo-overlay{padding:12px}.ventora-promo-modal{padding:24px 18px}.ventora-promo-project{padding:12px}.ventora-promo-project strong{font-size:14px}}
