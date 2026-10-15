@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import { useApp } from "./app-provider";
 import { ProjectCard } from "./project-card";
+import { FeaturedPromoModal } from "./featured-promo-modal";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -29,18 +30,18 @@ export function Dashboard() {
   const [visible, setVisible] = useState(true);
   const [promoOpen, setPromoOpen] = useState(false);
   useEffect(() => {
-    if (window.sessionStorage.getItem("ventora_promo_destaques_v7") !== "dismissed") setPromoOpen(true);
+    if (window.sessionStorage.getItem("ventora_promo_destaques_v8") !== "dismissed") setPromoOpen(true);
   }, []);
   useEffect(() => {
     if (!promoOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { window.sessionStorage.setItem("ventora_promo_destaques_v7", "dismissed"); setPromoOpen(false); }
+      if (event.key === "Escape") { window.sessionStorage.setItem("ventora_promo_destaques_v8", "dismissed"); setPromoOpen(false); }
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [promoOpen]);
   const closePromo = () => {
-    window.sessionStorage.setItem("ventora_promo_destaques_v7", "dismissed");
+    window.sessionStorage.setItem("ventora_promo_destaques_v8", "dismissed");
     setPromoOpen(false);
   };
 
@@ -58,26 +59,7 @@ export function Dashboard() {
 
   return (
     <div className="v2-dashboard">
-      {promoOpen && showcase.length > 0 && (
-        <div className="ventora-promo-overlay" onClick={closePromo}>
-          <section className="ventora-promo-modal" role="dialog" aria-modal="true" aria-labelledby="ventora-promo-title" onClick={(event) => event.stopPropagation()}>
-            <button type="button" className="ventora-promo-close" autoFocus aria-label="Fechar promoção" onClick={closePromo}>×</button>
-            <span className="ventora-promo-eyebrow">CONDIÇÕES ESPECIAIS · SEM DATA DE TÉRMINO</span>
-            <h2 id="ventora-promo-title">Descontos nos parques em destaque</h2>
-            <p>Confira as condições promocionais anunciadas para os três parques selecionados. A campanha não possui data de encerramento definida.</p>
-            <div className="ventora-promo-projects">
-              {showcase.map((project) => (
-                <Link key={project.id} href={`/projetos/${project.id}`} onClick={closePromo} className="ventora-promo-project">
-                  <span><strong>{project.name}</strong><small>Participação atualmente anunciada</small></span>
-                  <span><strong>{brl(project.unitValue)}</strong><small>Ver condições ↗</small></span>
-                </Link>
-              ))}
-            </div>
-            <small className="ventora-promo-note">Estes são os valores vigentes no catálogo; nenhum percentual adicional de desconto foi informado. Consulte os detalhes, riscos e condições antes de participar.</small>
-            <button type="button" className="ventora-promo-cta" onClick={closePromo}>Continuar na plataforma</button>
-          </section>
-        </div>
-      )}
+      {promoOpen && showcase.length > 0 && <FeaturedPromoModal projects={showcase} onClose={closePromo} />}
       <header className="v2-page-hero">
         <div>
           <span className="v2-eyebrow"><Sparkles size={14} /> VENTORA WIND PLATFORM</span>

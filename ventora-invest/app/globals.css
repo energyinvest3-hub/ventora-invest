@@ -186,3 +186,55 @@
 .ventora-promo-note{display:block;font-size:12px;color:#718b90;line-height:1.5;margin-bottom:16px}
 .ventora-promo-cta{cursor:pointer;background:#078e83;color:#fff;font-weight:750;border:0;border-radius:12px;padding:14px 18px;width:100%;font-size:15px}
 @media(max-width:540px){.ventora-promo-overlay{padding:12px}.ventora-promo-modal{padding:24px 18px}.ventora-promo-project{padding:12px}.ventora-promo-project strong{font-size:14px}}
+
+
+/* Ventora Promo Premium V8 — não interfere nos saques */
+.vp8-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(2,18,19,.78);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:clamp(8px,2vh,22px)}
+.vp8-modal{position:relative;width:min(920px,100%);max-height:calc(100dvh - 20px);overflow:auto;overscroll-behavior:contain;background:#f8f8f4;color:#0a2929;border-radius:clamp(16px,2.6vw,30px);box-shadow:0 28px 100px rgba(0,0,0,.5);scrollbar-width:thin}
+.vp8-close{position:absolute;z-index:5;right:22px;top:22px;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.93);color:#173c3b;cursor:pointer;box-shadow:0 4px 16px #092a2922;transition:transform .2s ease,background .2s ease}
+.vp8-close:hover{background:#fff;transform:scale(1.06)}
+.vp8-close:focus-visible,.vp8-dismiss:focus-visible,.vp8-project:focus-visible,.vp8-cta:focus-visible{outline:3px solid #57dcc6;outline-offset:3px}
+.vp8-hero{position:relative;min-height:350px;background:#052824;overflow:hidden;isolation:isolate}
+.vp8-hero-image{position:absolute;inset:0 0 0 44%;background-image:url('/ventora-promo-sunset.jpg');background-size:cover;background-position:center 52%;z-index:-2}
+.vp8-hero-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#062e2a 0%,#083b33 28%,rgba(5,45,39,.94) 43%,rgba(2,37,34,.42) 68%,rgba(4,25,25,.04) 100%),linear-gradient(0deg,rgba(1,34,29,.30),transparent 60%)}
+.vp8-hero-content{padding:38px 50px 45px;max-width:690px;color:#fff}
+.vp8-brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:24px;color:#dcfff0}
+.vp8-brand span{display:flex;flex-direction:column;gap:3px}
+.vp8-brand strong{font-size:20px;font-weight:650;letter-spacing:.24em;line-height:1}
+.vp8-brand small{font-size:9px;font-weight:650;letter-spacing:.22em;color:#b9d8d1}
+.vp8-eyebrow{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.1em;color:#c5f9d4;background:#0f705a7a;border:1px solid #89dcb958;border-radius:999px;padding:8px 12px;margin-bottom:14px}
+.vp8-hero h2{font-family:Georgia,Times New Roman,serif!important;font-weight:600!important;font-size:clamp(37px,5vw,56px)!important;letter-spacing:-.035em;line-height:1.02!important;max-width:650px;margin:0 0 14px!important;color:white!important;text-shadow:0 4px 26px #00241b33}
+.vp8-hero h2 em{display:block;font-style:normal;color:#b1ffcf}
+.vp8-hero p{font-size:clamp(14px,1.6vw,17px)!important;line-height:1.5!important;color:#e0eee7!important;max-width:430px;margin:0 0 18px!important}
+.vp8-trust{display:flex;gap:18px;flex-wrap:wrap;color:#d9f0e7;font-size:12px;font-weight:600}
+.vp8-trust span{display:flex;align-items:center;gap:6px}
+.vp8-content{padding:25px 30px 16px;background:linear-gradient(180deg,#f5f7f3,#f9faf7)}
+.vp8-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px}
+.vp8-section-title small{font-size:10px;letter-spacing:.13em;font-weight:800;color:#098e76}
+.vp8-section-title h3{margin:4px 0 0!important;font-family:Georgia,Times New Roman,serif!important;font-size:26px!important;font-weight:700!important;line-height:1.2!important;color:#092c2d!important}
+.vp8-section-title>span{font-size:12px;color:#287c6c;background:#e0f3eb;padding:8px 12px;border-radius:50px;white-space:nowrap}
+.vp8-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:19px}
+.vp8-project{overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e8e3;border-radius:17px;text-decoration:none!important;color:#092c2c!important;box-shadow:0 6px 15px rgba(7,53,43,.06);transition:transform .2s ease,box-shadow .2s ease}
+.vp8-project:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(7,53,43,.15)}
+.vp8-thumb{height:119px;position:relative;overflow:hidden;background:#e7f0ec}
+.vp8-thumb img{object-fit:cover!important;transition:transform .3s ease}
+.vp8-project:hover .vp8-thumb img{transform:scale(1.05)}
+.vp8-thumb-tag{position:absolute;top:10px;left:10px;background:#e8fff4;color:#036b58;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:800}
+.vp8-project-info{padding:13px 14px 15px;flex:1;display:flex;flex-direction:column}
+.vp8-project-name{font-family:Georgia,Times New Roman,serif;font-size:19px;font-weight:700;color:#0a3030;line-height:1.15}
+.vp8-location{display:flex;align-items:center;gap:4px;color:#718583;font-size:11px;margin-top:7px;margin-bottom:13px;line-height:1.3}
+.vp8-location svg{color:#0b8d78;flex-shrink:0}
+.vp8-project-price{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;padding-top:11px;border-top:1px solid #e3ece9;gap:7px}
+.vp8-project-price div{display:flex;flex-direction:column;gap:4px}
+.vp8-project-price small{font-size:9px;letter-spacing:.08em;color:#627c75;font-weight:800}
+.vp8-project-price strong{font-family:Georgia,Times New Roman,serif;font-size:clamp(21px,2.6vw,27px);font-weight:700;line-height:1;color:#0b3833;white-space:nowrap}
+.vp8-project-arrow{width:33px;height:33px;border-radius:50%;background:#e0f5e6;display:flex;align-items:center;justify-content:center;color:#036747;flex-shrink:0}
+.vp8-cta{display:flex;align-items:center;justify-content:center;gap:14px;border-radius:50px;padding:16px 20px;background:linear-gradient(105deg,#076b59,#003c36 78%,#096b51);color:#fff!important;text-decoration:none!important;font-size:17px;font-weight:750;box-shadow:0 11px 22px #0f76522e;transition:filter .2s ease,transform .2s ease}
+.vp8-cta:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.vp8-cta>svg:last-child{margin-left:auto}
+.vp8-cta>svg:first-child{margin-right:auto}
+.vp8-disclaimer{margin:13px 0 0!important;font-size:10px!important;color:#6d8380!important;text-align:center;line-height:1.45!important}
+.vp8-dismiss{display:block;margin:7px auto 0;background:none;border:0;padding:8px 20px 4px;color:#557370;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:12px}
+@media(max-width:700px){.vp8-modal{max-height:calc(100dvh - 12px)}.vp8-hero{min-height:318px}.vp8-hero-content{padding:30px 26px 34px}.vp8-hero-image{left:33%}.vp8-hero-shade{background:linear-gradient(90deg,#04322e 0%,rgba(5,43,38,.94) 30%,rgba(5,43,38,.78) 66%,rgba(5,43,38,.38)),linear-gradient(0deg,#072d2aa6,transparent)}.vp8-hero h2{font-size:clamp(34px,7vw,48px)!important}.vp8-content{padding:20px 17px 12px}.vp8-grid{gap:9px}.vp8-thumb{height:102px}.vp8-project-info{padding:11px 9px}.vp8-project-name{font-size:15px}.vp8-project-price strong{font-size:20px}.vp8-project-arrow{width:26px;height:26px}.vp8-project-price small{font-size:8px}.vp8-close{right:14px;top:14px;width:38px;height:38px}}
+@media(max-width:525px){.vp8-backdrop{padding:6px}.vp8-modal{border-radius:17px}.vp8-hero{min-height:328px}.vp8-hero-content{padding:26px 20px}.vp8-brand{margin-bottom:19px}.vp8-brand strong{font-size:18px}.vp8-eyebrow{font-size:9px;padding:7px 9px;max-width:calc(100% - 50px)}.vp8-hero h2{font-size:39px!important;max-width:350px}.vp8-hero p{font-size:13px!important;max-width:280px}.vp8-trust{gap:9px;font-size:10px}.vp8-section-title h3{font-size:22px!important}.vp8-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding-bottom:10px;scrollbar-width:thin;margin-bottom:10px}.vp8-project{min-width:min(74vw,265px);scroll-snap-align:start}.vp8-thumb{height:125px}.vp8-project-name{font-size:18px}.vp8-project-info{padding:13px}.vp8-project-price strong{font-size:25px}.vp8-cta{padding:14px 12px;font-size:14px;gap:8px}.vp8-cta>svg{width:18px}.vp8-section-title>span{font-size:10px}.vp8-disclaimer{font-size:9px!important}}
+@media(prefers-reduced-motion:reduce){.vp8-project,.vp8-thumb img,.vp8-cta,.vp8-close{transition:none!important}}
