@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   clientIp,
   isTrustedMutationRequest,
@@ -56,6 +57,18 @@ export async function POST(request: Request) {
       if (!EMAIL_RE.test(email)) return noStore({ error: "Informe um e-mail válido." }, 400);
       if (!PASSWORD_RE.test(password)) return noStore({ error: "Use pelo menos 6 caracteres." }, 400);
       if (!terms) return noStore({ error: "Aceite os Termos de Uso e a Política de Privacidade." }, 400);
+
+      // Nao cadastre um convidado com codigo invalido silenciosamente.
+      // A criacao do vinculo continua sendo atomica no gatilho handle_new_user.
+      if (inviteCode) {
+        if (!/^VW[A-Z0-9]{10}$/.test(inviteCode)) {
+          return noStore({ error: "Código de indicação inválido. Peça um novo link à pessoa que convidou você." }, 400);
+        }
+        const { data: inviter, error: inviteError } = await supabaseAdmin()
+          .from("profiles").select("id").eq("invite_code", inviteCode).maybeSingle();
+        if (inviteError) return noStore({ error: "Não foi possível verificar o convite. Tente novamente." }, 503);
+        if (!inviter) return noStore({ error: "Código de indicação não encontrado. Solicite um link válido." }, 400);
+      }
 
       const { data, error } = await db.auth.signUp({
         email,

@@ -62,6 +62,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     <section className="auth-form">
       <Image src="/logo.svg" width={190} height={56} alt="Ventora" priority />
       <h2>{title}</h2><p>{desc}</p>
+      {mode === "signup" && inviteCode && <div className="auth-referral-notice">Convite reconhecido: <strong>{inviteCode}</strong></div>}
       <form onSubmit={submit}>
         {mode === "signup" && <><label>Nome completo<input name="name" required minLength={3} maxLength={120} autoComplete="name" placeholder="Seu nome"/></label><label>Telefone<input name="phone" maxLength={32} autoComplete="tel" placeholder="(11) 99999-9999"/></label>{inviteCode && <input type="hidden" name="inviteCode" value={inviteCode}/>}</>}
         {mode === "login" && <label>E-mail<input name="identifier" type="email" required maxLength={320} autoComplete="email" placeholder="voce@exemplo.com"/></label>}

@@ -137,18 +137,27 @@ export function ProfileSubpage({ section }: { section: string }) {
   }
 
   function referralUrl() {
-    if (typeof window === "undefined") return `/cadastro?ref=${referral.inviteCode}`;
-    return `${window.location.origin}/cadastro?ref=${referral.inviteCode}`;
+    // URL publica canonica: nao copia enderecos de preview ou localhost.
+    return `https://www.ventorainvest.shop/cadastro?ref=${encodeURIComponent(referral.inviteCode.trim().toUpperCase())}`;
   }
   async function copyInvite() {
-    await navigator.clipboard.writeText(referral.inviteCode);
-    setCopied(true); showToast("Código de convite copiado."); setTimeout(() => setCopied(false), 1600);
+    try {
+      await navigator.clipboard.writeText(referralUrl());
+      setCopied(true);
+      showToast("Link de indicação copiado.");
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      showToast("Selecione e copie o link exibido na tela.");
+    }
   }
   async function shareInvite() {
     const url = referralUrl();
-    const text = `Entre na Ventora com meu código ${referral.inviteCode}: ${url}`;
-    if (navigator.share) await navigator.share({ title: "Convite Ventora", text, url }).catch(() => {});
-    else { await navigator.clipboard.writeText(text); showToast("Link de convite copiado."); }
+    const text = `Entre na Ventora pelo meu link: ${url}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: "Convite Ventora", text, url }); } catch { /* compartilhamento cancelado */ }
+    } else {
+      await copyInvite();
+    }
   }
 
   return <div className="profile-wrap">
@@ -163,7 +172,7 @@ export function ProfileSubpage({ section }: { section: string }) {
       </form> : section === "seguranca" ? <div className="feature-copy"><ShieldCheck size={34}/><h2>Senha e acesso</h2><p>Use uma senha que você consiga lembrar. Se precisar trocar, use a recuperação segura da conta.</p><Link className="primary" href="/recuperar-senha">Alterar minha senha</Link></div>
       : section === "convites" ? <div className="referral-program">
         <div className="referral-hero"><span className="profile-badge"><UserPlus size={14}/> PROGRAMA ATIVO</span><h2>Convide pessoas para a Ventora</h2><p>Quando alguém cria a conta pelo seu código, ela aparece na sua equipe. O bônus só é liberado conforme as regras configuradas na plataforma.</p></div>
-        <div className="referral-code-card"><span>SEU CÓDIGO</span><strong>{referral.inviteCode || "—"}</strong><div className="referral-actions"><button type="button" onClick={copyInvite}><Copy size={17}/>{copied ? "Copiado" : "Copiar código"}</button><button type="button" className="primary" onClick={shareInvite}><Share2 size={17}/>Compartilhar</button></div></div>
+        <div className="referral-code-card"><span>SEU CÓDIGO</span><strong>{referral.inviteCode || "—"}</strong><label className="referral-share-url"><span>LINK DIRETO DE CADASTRO</span><input aria-label="Seu link de indicação" value={referralUrl()} readOnly onFocus={event => event.currentTarget.select()} /></label><div className="referral-actions"><button type="button" onClick={copyInvite}><Copy size={17}/>{copied ? "Link copiado" : "Copiar link"}</button><button type="button" className="primary" onClick={shareInvite}><Share2 size={17}/>Compartilhar</button></div></div>
         <div className="referral-stat-grid"><div><UsersRound/><span>Convidados</span><strong>{referral.invitedCount}</strong></div><div><BadgeCheck/><span>Qualificados</span><strong>{referral.qualifiedCount}</strong></div><div><Gift/><span>Bônus</span><strong>{money(referral.totalBonus)}</strong></div></div>
       </div>
       : section === "equipe" ? <div className="referral-program"><div className="referral-hero"><span>SUA REDE</span><h2>{referral.invitedCount} pessoa{referral.invitedCount === 1 ? "" : "s"} indicada{referral.invitedCount === 1 ? "" : "s"}</h2><p>Aqui aparecem as contas cadastradas usando seu código.</p></div>{referral.referrals.length === 0 ? <div className="empty"><h3>Sua equipe começa no primeiro convite</h3><p>Compartilhe seu código para acompanhar as indicações aqui.</p><Link className="primary" href="/perfil/convites">Convidar agora</Link></div> : <div className="referral-list">{referral.referrals.map(member=><div className="referral-member" key={member.id}><span className="avatar small">{member.name.charAt(0).toUpperCase()}</span><div><strong>{member.name}</strong><small>Entrou em {new Date(member.joinedAt).toLocaleDateString("pt-BR")}</small></div><span className={`status-label ${member.qualified ? "ok" : "wait"}`}>{member.qualified ? "Qualificado" : "Em andamento"}</span></div>)}</div>}</div>
