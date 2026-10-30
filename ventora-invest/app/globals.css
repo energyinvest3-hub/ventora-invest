@@ -245,3 +245,74 @@
 .referral-share-url input{display:block;box-sizing:border-box;width:100%;border:1px solid #cce3de;border-radius:12px;padding:12px 14px;background:#f4fbf9;color:#0b534f;font-size:13px;font-weight:600;text-overflow:ellipsis;outline-offset:2px}
 .referral-share-url input:focus{outline:2px solid #13a995}
 .auth-referral-notice{padding:12px 14px;margin:12px 0;border:1px solid #bde6d9;border-radius:12px;background:#edfbf5;color:#0d6253;font-size:14px;line-height:1.45}
+/* Atalho do WhatsApp Ventora — botão global */
+.ventora-whatsapp-fab{position:fixed;right:22px;bottom:24px;z-index:900;display:flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:50%;background:#25d366;color:#fff;box-shadow:0 9px 30px rgba(0,0,0,.25);transition:transform .18s ease,box-shadow .18s ease;text-decoration:none}
+.ventora-whatsapp-fab:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 12px 35px rgba(0,0,0,.3)}
+.ventora-whatsapp-fab:focus-visible{outline:3px solid #083b36;outline-offset:3px}
+.ventora-whatsapp-fab svg{width:32px;height:32px;fill:currentColor}
+@media(max-width:760px){.ventora-whatsapp-fab{right:16px;bottom:96px;width:54px;height:54px}.ventora-whatsapp-fab svg{width:30px;height:30px}}
+
+/* Ventora Admin Carteiras V10 */
+.ventora-wallet-grid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:14px
+}
+.ventora-wallet-user-card{
+ min-width:0;
+ padding:20px;
+ border:1px solid #dfebe9;
+ border-radius:20px;
+ background:linear-gradient(160deg,#fff,#f8fbfa);
+ box-shadow:0 7px 24px rgba(11,52,57,.045)
+}
+.ventora-wallet-user-head{
+ display:flex;align-items:center;gap:12px;min-width:0
+}
+.ventora-wallet-avatar{
+ flex:none;display:grid;place-items:center;
+ width:48px;height:48px;border-radius:16px;
+ background:linear-gradient(135deg,#095b55,#18aa90);
+ color:white;font-size:22px;font-weight:800
+}
+.ventora-wallet-identification{
+ min-width:0;display:flex;flex-direction:column;gap:4px
+}
+.ventora-wallet-identification strong{
+ font-size:16px;font-weight:800;color:#0c3339;
+ overflow-wrap:anywhere;line-height:1.35
+}
+.ventora-wallet-identification small{
+ font-size:12px;color:#6f8284;
+ overflow-wrap:anywhere;line-height:1.4
+}
+.ventora-wallet-amounts{
+ margin:18px 0 12px;display:grid;
+ grid-template-columns:1fr 1fr;gap:10px
+}
+.ventora-wallet-amounts>div{
+ min-width:0;padding:13px 12px;border-radius:12px;
+ background:#edf7f4;display:flex;
+ flex-direction:column;gap:6px
+}
+.ventora-wallet-amounts span{
+ font-size:11px;color:#547470;font-weight:600
+}
+.ventora-wallet-amounts strong{
+ font-size:clamp(15px,2vw,20px);
+ line-height:1.2;color:#064b41;overflow-wrap:anywhere
+}
+.ventora-wallet-user-id{
+ display:block;border-top:1px solid #e2edeb;
+ padding-top:10px;color:#8a999b;font-size:11px
+}
+@media(max-width:850px){
+ .ventora-wallet-grid{grid-template-columns:1fr}
+}
+@media(max-width:400px){
+ .ventora-wallet-user-card{padding:14px}
+ .ventora-wallet-amounts{gap:7px}
+ .ventora-wallet-amounts>div{padding:11px 8px}
+ .ventora-wallet-user-head{gap:9px}
+ .ventora-wallet-avatar{width:42px;height:42px}
+}

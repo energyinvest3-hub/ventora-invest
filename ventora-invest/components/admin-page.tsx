@@ -89,9 +89,34 @@ export function AdminPage({records}:{records:AdminData}){
 
   const [tab,setTab]=useState<Tab>("Usuários");
   const [query,setQuery]=useState("");
-  const rows=records[tabKey[tab]]||[];
-  const filtered=useMemo(()=>{const q=query.trim().toLowerCase(); return !q?rows:rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));},[rows,query]);
   const profiles=records.profiles||[], wallets=records.wallets||[], projects=records.wind_projects||[], holdings=records.user_projects||[], deposits=records.deposits||[], tx=records.transactions||[], refs=records.referrals||[];
+
+  const usersById=useMemo(()=>{
+    const map=new Map<string,Row>();
+    for(const user of profiles)
+      map.set(String(user.id||""),user);
+    return map;
+  },[profiles]);
+
+  const rawRows=records[tabKey[tab]]||[];
+
+  const rows=useMemo<Row[]>(()=>tab!=="Carteiras" ? rawRows : rawRows.map(wallet=>{
+    const user=usersById.get(String(wallet.user_id||""));
+    const email=String(user?.email||"");
+    return {
+      ...wallet,
+      display_name:String(user?.name||email.split("@")[0]||"Usuário sem nome"),
+      display_email:email,
+      display_phone:String(user?.phone||"")
+    };
+  }),[rawRows,tab,usersById]);
+
+  const filtered=useMemo(()=>{
+    const q=query.trim().toLocaleLowerCase("pt-BR");
+    return !q ? rows : rows.filter(row=>
+      JSON.stringify(row).toLocaleLowerCase("pt-BR").includes(q)
+    );
+  },[rows,query]);
   return <div className="admin-page">
     <div className="page-head"><div><span>PAINEL ADMINISTRATIVO</span><h1>Controle da Ventora</h1><p>Usuários, carteiras, projetos, participações e indicações em um só lugar.</p></div></div>
     <section className="admin-security-strip"><ShieldCheck size={21}/><div><strong>Administrador autenticado</strong><span>O acesso é validado no banco pelo UUID da conta administrativa.</span></div></section>
@@ -112,8 +137,26 @@ export function AdminPage({records}:{records:AdminData}){
     </div>
     <div className="admin-tabs">{tabs.map(t=><button key={t} className={tab===t?"active":""} onClick={()=>{setTab(t);setQuery("")}}>{t}</button>)}</div>
     <section className="admin-table-card">
-      <div className="admin-table-head"><div><span>{tab.toUpperCase()}</span><h2>{tab}</h2></div><label><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={`Buscar em ${tab.toLowerCase()}`}/></label></div>
-      {!filtered.length ? <div className="empty"><h3>Nenhum registro</h3><p>Não há registros para os filtros atuais.</p></div> : <div className="admin-list">{filtered.map((row,i)=><article key={String(row.id||i)}><div><strong>{primary(row,tab)}</strong><small>{detail(row,tab)}</small></div><span>{String(row.status || row.created_at || "")}</span></article>)}</div>}
+      <div className="admin-table-head"><div><span>{tab.toUpperCase()}</span><h2>{tab}</h2></div><label><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={tab==="Carteiras" ? "Buscar nome, e-mail, telefone ou ID" : `Buscar em ${tab.toLowerCase()}`}/></label></div>
+      {!filtered.length ? <div className="empty"><h3>Nenhum registro</h3><p>Não há registros para os filtros atuais.</p></div>
+      : tab==="Carteiras" ? <div className="ventora-wallet-grid">
+        {filtered.map((wallet,i)=><article className="ventora-wallet-user-card" key={String(wallet.user_id||i)}>
+          <div className="ventora-wallet-user-head">
+            <span className="ventora-wallet-avatar" aria-hidden="true">{String(wallet.display_name||"U").charAt(0).toUpperCase()}</span>
+            <div className="ventora-wallet-identification">
+              <strong>{String(wallet.display_name||"Usuário sem nome")}</strong>
+              <small className="ventora-wallet-email">{String(wallet.display_email||"E-mail não disponível")}</small>
+              {Boolean(wallet.display_phone) && <small>{String(wallet.display_phone)}</small>}
+            </div>
+          </div>
+          <div className="ventora-wallet-amounts">
+            <div><span>Saldo disponível</span><strong>{money(wallet.balance)}</strong></div>
+            <div><span>Ganhos acumulados</span><strong>{money(wallet.total_earned)}</strong></div>
+          </div>
+          <small className="ventora-wallet-user-id" title={String(wallet.user_id||"")}>ID: {String(wallet.user_id||"").slice(0,8)}…</small>
+        </article>)}
+      </div>
+      : <div className="admin-list">{filtered.map((row,i)=><article key={String(row.id||i)}><div><strong>{primary(row,tab)}</strong><small>{detail(row,tab)}</small></div><span>{String(row.status || row.created_at || "")}</span></article>)}</div>}
     </section>
   </div>;
 }
