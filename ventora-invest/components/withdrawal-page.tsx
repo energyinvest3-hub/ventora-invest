@@ -43,10 +43,31 @@ export function WithdrawalPage(){
   const feeAmount=feeCents/100;
   const netAmount=(grossCents-feeCents)/100;
   const doc=document.replace(/\D/g,"");
-  const valid=Number.isFinite(numericAmount)&&numericAmount>=1.05&&numericAmount<=balance&&withdrawAllowed&&pixKey.trim().length>=3&&[11,14].includes(doc.length)&&accepted;
+  const validationMessage=(()=>{
+    if(!withdrawAllowed) return "Saques disponíveis de segunda a sexta, das 9h às 18h (Brasília).";
+    if(!amount.trim()) return "Informe o valor do saque.";
+    if(!Number.isFinite(numericAmount)) return "Valor de saque inválido.";
+    if(numericAmount<1.05) return "O valor mínimo para saque é R$ 1,05.";
+    if(numericAmount>100000) return "Valor máximo de R$ 100.000,00.";
+    if(numericAmount>balance) return `Saldo insuficiente. Disponível: ${brl(balance)}.`;
+    const key=pixKey.trim();
+    if(pixKeyType==="cpf" && key.replace(/\D/g,"").length!==11) return "A chave PIX CPF precisa ter 11 dígitos.";
+    if(pixKeyType==="email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) return "Informe um e-mail PIX válido.";
+    if(pixKeyType==="phone" && !/^\+?55\d{10,11}$/.test(key.replace(/[^\d+]/g,""))) return "Informe um telefone PIX com DDI +55.";
+    if(pixKeyType==="random" && !/^[0-9a-f-]{32,36}$/i.test(key)) return "Chave PIX aleatória inválida.";
+    if(![11,14].includes(doc.length)) return "Informe os 11 dígitos do CPF ou 14 do CNPJ do titular.";
+    if(pixKeyType==="cpf" && key.replace(/\D/g,"")!==doc) return "O CPF do titular deve ser igual à chave PIX.";
+    if(!accepted) return "Confirme os dados PIX para continuar.";
+    return "";
+  })();
+  const valid=!validationMessage;
 
   async function submit(){
-    if(!valid||busy)return;
+    if(busy)return;
+    if(!valid){
+      showToast(validationMessage || "Confira os dados.");
+      return;
+    }
     setBusy(true);
     try{
       const response=await fetch("/api/payments/pushinpay/withdraw",{
@@ -86,7 +107,9 @@ export function WithdrawalPage(){
       <label className="withdraw-field"><span>CPF/CNPJ do titular da chave</span><input inputMode="numeric" value={document} onChange={e=>setDocument(e.target.value)} placeholder="Somente números"/></label>
       <label className="withdraw-confirm"><input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)}/><span>Confirmo meus dados PIX, o desconto de 4% no valor a receber e que não repetirei a solicitação enquanto estiver em processamento.</span></label>
       <div className="withdraw-info"><ShieldCheck size={19}/><p>O valor é reservado antes do envio. Se a PushinPay recusar o saque definitivamente, ele volta automaticamente para a carteira.</p></div>
-      <button className="withdraw-primary" type="button" disabled={!valid||busy} onClick={submit}>{busy?"Enviando...":<>Solicitar saque <ArrowUpRight size={17}/></>}</button>
+      {balance<1.05 && <p className="withdraw-error" role="alert">Seu saldo é {brl(balance)}. O saque mínimo é R$ 1,05.</p>}
+      {Number.isFinite(numericAmount) && numericAmount>0 && numericAmount<1.05 && balance>=1.05 && <p className="withdraw-error" role="alert">Informe pelo menos R$ 1,05 para solicitar o saque.</p>}
+      <button className="withdraw-primary" type="button" disabled={busy} onClick={submit}>{busy?"Enviando...":<>Solicitar saque <ArrowUpRight size={17}/></>}</button>
     </section>
   </div>;
 }

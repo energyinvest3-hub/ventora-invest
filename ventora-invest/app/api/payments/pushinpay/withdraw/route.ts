@@ -58,6 +58,16 @@ export async function POST(request: Request) {
     if (![11,14].includes(receiverNationalRegistration.length)) return noStore({ error: "Informe o CPF ou CNPJ do titular da chave PIX." }, 400);
     if (pixKeyType === "cpf" && digits(pixKey) !== receiverNationalRegistration) return noStore({ error: "O CPF do titular precisa ser igual à chave PIX CPF." }, 400);
 
+    // Validação ANTES de reservar saldo.
+    if (pixKeyType==="cpf" && digits(pixKey).length!==11)
+      return noStore({error:"A chave PIX CPF precisa ter 11 dígitos."},400);
+    if (pixKeyType==="email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pixKey))
+      return noStore({error:"Informe um e-mail PIX válido."},400);
+    if (pixKeyType==="phone" && !/^\+?55\d{10,11}$/.test(pixKey.replace(/[^\d+]/g,"")))
+      return noStore({error:"Informe o telefone PIX com DDI +55."},400);
+    if (pixKeyType==="random" && !/^[0-9a-f-]{32,36}$/i.test(pixKey))
+      return noStore({error:"Informe uma chave aleatória PIX válida."},400);
+
     const admin = supabaseAdmin();
     const { data: createdRaw, error: createError } = await admin.rpc("server_create_pushinpay_withdrawal", {
       p_user_id: user.id,
