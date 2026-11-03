@@ -24,7 +24,7 @@ function isWithdrawalWindowBrasilia() {
   }).formatToParts(new Date());
   const weekday = parts.find((part) => part.type === "weekday")?.value;
   const hour = Number(parts.find((part) => part.type === "hour")?.value ?? "-1");
-  return weekday !== "Sat" && weekday !== "Sun" && hour === 9;
+  return weekday !== "Sat" && weekday !== "Sun" && hour >= 9 && hour < 18;
 }
 
 export async function POST(request: Request) {
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const { data: { user } } = await db.auth.getUser();
     if (!user) return noStore({ error: "Entre na sua conta." }, 401);
     if (!isWithdrawalWindowBrasilia()) {
-      return noStore({ error: "Saques somente de segunda a sexta, das 9h às 10h (horário de Brasília)." }, 403);
+      return noStore({ error: "Saques somente de segunda a sexta, das 9h às 18h (horário de Brasília)." }, 403);
     }
 
     const ip = clientIp(request);
