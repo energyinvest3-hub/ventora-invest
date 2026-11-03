@@ -5,6 +5,15 @@ import { ArrowLeft, ArrowUpRight, CheckCircle2, ShieldCheck, WalletCards } from 
 import { useApp } from "./app-provider";
 
 const brl = (n:number) => n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function parseBrlAmount(value: string): number {
+  const text=value.trim().replace(/[^\d.,]/g, "");
+  if (!text) return NaN;
+  const comma=text.lastIndexOf(","), dot=text.lastIndexOf(".");
+  const normalized=comma>=0 ? text.replace(/\./g,"").replace(",",".")
+    : dot>=0 && text.length-dot-1===3 ? text.replace(/\./g,"") : text;
+  return /^\d+(?:\.\d{0,2})?$/.test(normalized) ? Number(normalized) : NaN;
+}
+
 type PixType = "cpf"|"email"|"phone"|"random";
 
 export function WithdrawalPage(){
@@ -28,9 +37,11 @@ export function WithdrawalPage(){
     return ()=>window.clearInterval(timer);
   },[]);
   const [done,setDone]=useState<string|null>(null);
-  const numericAmount=Number(amount.replace(",","."));
-  const feeAmount=Number.isFinite(numericAmount) ? Math.round(numericAmount*0.04*100)/100 : 0;
-  const netAmount=Number.isFinite(numericAmount) ? Math.round((numericAmount-feeAmount)*100)/100 : 0;
+  const numericAmount=parseBrlAmount(amount);
+  const grossCents=Number.isFinite(numericAmount) ? Math.round(numericAmount*100) : 0;
+  const feeCents=Math.round(grossCents*0.04);
+  const feeAmount=feeCents/100;
+  const netAmount=(grossCents-feeCents)/100;
   const doc=document.replace(/\D/g,"");
   const valid=Number.isFinite(numericAmount)&&numericAmount>=1.05&&numericAmount<=balance&&withdrawAllowed&&pixKey.trim().length>=3&&[11,14].includes(doc.length)&&accepted;
 
@@ -65,7 +76,8 @@ export function WithdrawalPage(){
         <strong>Horário de saque: segunda a sexta, das 9h às 10h (Brasília)</strong>
         <p>{withdrawAllowed ? "Período de solicitação aberto." : "Solicitações indisponíveis neste horário ou em fins de semana."}</p>
         <p>Taxa de saque: <strong>4%</strong> (deduzida do valor solicitado).</p>
-        {Number.isFinite(numericAmount) && numericAmount>0 && <p>Valor solicitado: <strong>{brl(numericAmount)}</strong> · Taxa: <strong>{brl(feeAmount)}</strong> · Você recebe: <strong>{brl(netAmount)}</strong></p>}
+        {Number.isFinite(numericAmount) && numericAmount>0 && <p aria-live="polite">Valor solicitado: <strong>{brl(numericAmount)}</strong> · Taxa (4%): <strong>- {brl(feeAmount)}</strong> · PIX a receber: <strong style={{fontSize:20,color:"#087c73"}}>{brl(netAmount)}</strong></p>}
+        <small>O cálculo atualiza enquanto você digita, sem precisar apagar ou digitar novamente.</small>
         <small>Valor mínimo solicitado: R$ 1,05. O valor líquido é enviado por PIX; o total solicitado é debitado da carteira.</small>
       </div>
       {numericAmount>balance&&<p className="withdraw-error">Saldo insuficiente para este valor.</p>}
