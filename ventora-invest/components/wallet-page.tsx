@@ -66,13 +66,13 @@ export function WalletPage() {
     if (filter === "all") return transactions;
     if (filter === "in")
       return transactions.filter((item) =>
-        ["deposit", "credit", "refund", "bonus"].includes(item.type),
+        ["deposit", "credit", "refund", "bonus", "admin_credit"].includes(item.type),
       );
     if (filter === "out")
       return transactions.filter((item) =>
-        ["purchase", "withdrawal"].includes(item.type),
+        ["purchase", "withdrawal", "admin_debit"].includes(item.type),
       );
-    if (filter === "credit") return transactions.filter((item) => item.type === "credit");
+    if (filter === "credit") return transactions.filter((item) => ["credit","admin_credit"].includes(item.type));
     if (filter === "bonus") return transactions.filter((item) => item.type === "bonus");
     return transactions.filter((item) => item.type === "purchase");
   }, [transactions, filter]);
@@ -219,7 +219,7 @@ function WalletMetric({
 }
 
 function TransactionRow({ item }: { item: WalletTransaction }) {
-  const incoming = ["deposit", "credit", "refund", "bonus"].includes(item.type);
+  const incoming = ["deposit", "credit", "refund", "bonus", "admin_credit"].includes(item.type);
   const labels: Record<WalletTransaction["type"], string> = {
     deposit: "Entrada",
     purchase: "Participação",
@@ -227,6 +227,8 @@ function TransactionRow({ item }: { item: WalletTransaction }) {
     withdrawal: "Saque",
     refund: "Estorno",
     bonus: "Bônus",
+    admin_credit: "Crédito administrativo",
+    admin_debit: "Débito administrativo",
   };
   return (
     <article>

@@ -316,3 +316,76 @@
  .ventora-wallet-user-head{gap:9px}
  .ventora-wallet-avatar{width:42px;height:42px}
 }
+
+/* VENTORA ADMIN V11 */
+.vw11-admin-intro{display:flex;gap:20px;align-items:center;padding:25px 28px;margin:20px 0;border-radius:24px;color:#effff8;background:linear-gradient(115deg,#083338 0%,#064d4c 52%,#088f80 100%);box-shadow:0 20px 45px #063f4b25;position:relative;overflow:hidden}
+.vw11-admin-intro::after{content:"";position:absolute;width:290px;height:290px;border-radius:50%;border:1px solid #ffffff26;right:-70px;top:-140px;pointer-events:none;box-shadow:0 0 0 44px #ffffff0b,0 0 0 90px #ffffff09}
+.vw11-intro-icon{display:grid;place-items:center;width:60px;height:60px;min-width:60px;border-radius:18px;background:#ffffff1c;color:#bafbea;border:1px solid #ffffff24}
+.vw11-admin-intro div:nth-child(2){position:relative;z-index:1;flex:1}
+.vw11-admin-intro span:not(.vw11-intro-chip){color:#b0e5dd;font-size:11px;letter-spacing:.16em;font-weight:800}
+.vw11-admin-intro h2{margin:5px 0 6px;font-size:clamp(20px,3vw,27px);letter-spacing:-.035em;line-height:1.1;color:#fff}
+.vw11-admin-intro p{margin:0;color:#cce5e3;font-size:13px;line-height:1.55}
+.vw11-intro-chip{position:relative;z-index:1;flex:none;padding:9px 13px;font-size:11px;color:#cefbf2;border:1px solid #baffee47;border-radius:999px;background:#ffffff15;font-weight:750}
+.vw11-wallet-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:13px;margin:0 0 22px}
+.vw11-wallet-toolbar>span{color:#789294;font-size:12px;font-weight:650}
+.vw11-wallet-filters{display:flex;gap:5px;padding:4px;border-radius:14px;background:#eef6f4;border:1px solid #daebe7}
+.vw11-wallet-filters button{padding:10px 13px;border-radius:10px;background:transparent;border:0;font-size:12px;color:#637d7d;font-weight:800;cursor:pointer}
+.vw11-wallet-filters button.active{background:#fff;color:#075d54;box-shadow:0 2px 10px #063c3717}
+.vw11-card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:16px}
+.vw11-card-actions>span{font-size:10px;color:#8aa09e;white-space:nowrap}
+.vw11-adjust-button{display:flex;align-items:center;justify-content:center;gap:8px;border:0;background:linear-gradient(100deg,#087d72,#059f8c);color:#fff;font-size:13px;font-weight:800;padding:12px 15px;border-radius:12px;box-shadow:0 6px 13px #058c8026;transition:transform .18s ease,box-shadow .18s ease;cursor:pointer}
+.vw11-adjust-button:hover{transform:translateY(-1px);box-shadow:0 9px 21px #058c8040}
+.vw11-feedback{display:flex;align-items:center;gap:9px;padding:14px 16px;background:#edf9f2;border:1px solid #bfe7d1;border-radius:14px;color:#13664c;font-size:13px;font-weight:750;line-height:1.5}
+.ventora-wallet-user-card{transition:border-color .2s ease,box-shadow .2s ease}
+.ventora-wallet-user-card:hover{border-color:#b6d9d2;box-shadow:0 12px 26px #0b333115}
+.vw11-overlay{position:fixed;inset:0;background:#05272dbb;backdrop-filter:blur(7px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px}
+.vw11-dialog{width:min(540px,100%);max-height:calc(100dvh - 30px);overflow:auto;overscroll-behavior:contain;background:#fff;color:#0b3137;border-radius:25px;box-shadow:0 35px 110px #011f2770;padding:clamp(20px,4vw,30px);display:grid;gap:18px}
+.vw11-dialog-head{display:flex;align-items:center;gap:12px}
+.vw11-brandmark{width:48px;height:48px;border-radius:14px;background:linear-gradient(140deg,#063d3b,#139d8b);display:grid;place-items:center;color:#fff;flex:none}
+.vw11-dialog-head>div:nth-child(2){flex:1;min-width:0}
+.vw11-dialog-head span{display:block;font-size:10px;letter-spacing:.12em;color:#079482;font-weight:850}
+.vw11-dialog-head h2{margin:4px 0 0;font-size:23px;color:#0a3137;letter-spacing:-.03em}
+.vw11-close{width:35px;height:35px;border:1px solid #dde9e7;border-radius:11px;display:grid;place-items:center;background:#fff;color:#597476;cursor:pointer}
+.vw11-person{display:flex;align-items:center;gap:12px;padding:14px;border-radius:15px;background:#f1f7f6;border:1px solid #deebe8;min-width:0}
+.vw11-person>div:last-child{display:grid;gap:3px;min-width:0}
+.vw11-person strong{font-size:15px;color:#113a40;overflow-wrap:anywhere}
+.vw11-person span{font-size:12px;color:#698083;overflow-wrap:anywhere}
+.vw11-avatar{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#cdebe4;color:#0a7166;font-size:21px;font-weight:850}
+.vw11-balance{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-radius:15px;background:#053c3d;color:#cce5e3}
+.vw11-balance span{font-size:12px;font-weight:600}
+.vw11-balance strong{font-size:23px;color:#fff;white-space:nowrap}
+.vw11-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.vw11-modes button{border:1px solid #d6e7e4;background:#f8fbfa;color:#526f72;border-radius:11px;padding:11px 5px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:12px;cursor:pointer}
+.vw11-modes button.selected{border-color:#088f80;background:#e5f7f1;color:#06766a}
+.vw11-label{display:grid;gap:7px;font-size:12px;color:#38585b;font-weight:850}
+.vw11-label small{font-weight:500;color:#829997}
+.vw11-money-field{display:flex;align-items:center;gap:8px;border:1px solid #d3e3e1;border-radius:13px;padding:0 14px;transition:border .15s}
+.vw11-money-field:focus-within{border-color:#059b8a;box-shadow:0 0 0 3px #059b8a20}
+.vw11-money-field span{font-weight:850;font-size:17px;color:#069384}
+.vw11-money-field input{width:100%;min-width:0;border:0;outline:0;padding:14px 2px;font-size:20px;color:#09353a;background:transparent}
+.vw11-label textarea{padding:12px;border:1px solid #d3e3e1;outline:0;border-radius:13px;resize:vertical;font:inherit;font-size:13px;color:#163d41}
+.vw11-label textarea:focus{border-color:#059b8a;box-shadow:0 0 0 3px #059b8a20}
+.vw11-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.vw11-preview>div{background:#f4f8f7;border:1px solid #e0ece9;border-radius:12px;padding:12px;display:grid;gap:6px;min-width:0}
+.vw11-preview span{font-size:11px;color:#6b8386}
+.vw11-preview strong{font-size:17px;overflow-wrap:anywhere;color:#143a40}
+.vw11-preview .minus{color:#b2524e}.vw11-preview .plus{color:#138368}
+.vw11-preview .vw11-final{grid-column:1/-1;background:#e3f4ee;border-color:#cae9df;display:flex;align-items:center;justify-content:space-between;gap:9px}
+.vw11-preview .vw11-final strong{font-size:24px;color:#066755}
+.vw11-hint{display:flex;align-items:center;gap:7px;color:#7e7772;font-size:12px;margin:0}
+.vw11-error{color:#af3b3b;background:#fff1f1;padding:11px;border-radius:10px;font-size:13px;margin:0;overflow-wrap:anywhere}
+.vw11-actions{display:flex;gap:10px}
+.vw11-actions button{flex:1;border:0;border-radius:12px;display:flex;justify-content:center;align-items:center;gap:8px;padding:13px 12px;font-weight:850;font-size:13px;cursor:pointer}
+.vw11-secondary{background:#f0f4f3;color:#546b6f}
+.vw11-primary{background:#048b7b;color:white;box-shadow:0 7px 16px #078a7d22}
+.vw11-primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.vw11-review{display:grid;gap:10px;background:#f1f9f6;border:1px solid #cfe8dd;border-radius:15px;padding:18px;color:#285459}
+.vw11-review>svg{color:#07937a}
+.vw11-review>strong{font-size:18px;color:#113c40}
+.vw11-review p{font-size:12px;line-height:1.6;margin:0 0 6px}
+.vw11-review>div{display:flex;justify-content:space-between;gap:12px;align-items:baseline;border-top:1px solid #d7e9e4;padding-top:8px}
+.vw11-review>div span{font-size:11px;color:#65817f;flex:none}
+.vw11-review>div strong{font-size:13px;overflow-wrap:anywhere;text-align:right}
+.vw11-foot{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;color:#829b99;text-align:center}
+@media(max-width:750px){.vw11-admin-intro{align-items:flex-start;padding:20px;gap:12px}.vw11-intro-icon{width:46px;height:46px;min-width:46px;border-radius:13px}.vw11-intro-chip{display:none}.vw11-dialog{border-radius:17px;padding:20px}.vw11-wallet-toolbar{align-items:flex-start}.vw11-card-actions>span{display:none}}
+@media(max-width:420px){.vw11-dialog{padding:16px;gap:14px}.vw11-modes button{font-size:11px;gap:3px;padding:11px 3px}.vw11-modes svg{width:15px}.vw11-preview .vw11-final strong{font-size:21px}.vw11-actions button{font-size:12px}.vw11-admin-intro h2{font-size:19px}}

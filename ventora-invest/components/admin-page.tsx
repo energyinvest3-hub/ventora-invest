@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, ArrowDownLeft, Gift, Search, ShieldCheck, Users, Wallet, Wind } from "lucide-react";
+import { AdminWalletEditor, type WalletEditorTarget } from "./admin-wallet-editor";
+import { Activity, ArrowDownLeft, Gift, Search, ShieldCheck, Users, Wallet, Wind, Pencil, ArrowUpRight } from "lucide-react";
 
 type Row = Record<string, unknown>;
 type AdminData = Record<string, Row[]>;
@@ -48,6 +49,9 @@ export function AdminPage({records}:{records:AdminData}){
   const router = useRouter();
   const [syncing,setSyncing]=useState(false);
   const [syncInfo,setSyncInfo]=useState("");
+  const [walletEditor,setWalletEditor]=useState<WalletEditorTarget|null>(null);
+  const [walletMessage,setWalletMessage]=useState("");
+  const [walletFilter,setWalletFilter]=useState<"all"|"positive"|"zero">("all");
   useEffect(()=>{
     const update=()=>{if(document.visibilityState === "visible") router.refresh();};
     const timer=window.setInterval(update,20000);
@@ -113,12 +117,20 @@ export function AdminPage({records}:{records:AdminData}){
 
   const filtered=useMemo(()=>{
     const q=query.trim().toLocaleLowerCase("pt-BR");
-    return !q ? rows : rows.filter(row=>
+    const byBalance=tab!=="Carteiras"||walletFilter==="all" ? rows : rows.filter(row=>
+      walletFilter==="positive" ? Number(row.balance||0)>0 : Number(row.balance||0)===0
+    );
+    return !q ? byBalance : byBalance.filter(row=>
       JSON.stringify(row).toLocaleLowerCase("pt-BR").includes(q)
     );
-  },[rows,query]);
+  },[rows,query,tab,walletFilter]);
   return <div className="admin-page">
     <div className="page-head"><div><span>PAINEL ADMINISTRATIVO</span><h1>Controle da Ventora</h1><p>Usuários, carteiras, projetos, participações e indicações em um só lugar.</p></div></div>
+    <section className="vw11-admin-intro">
+      <div className="vw11-intro-icon"><ShieldCheck size={27}/></div>
+      <div><span>CONSOLE ADMIN · VENTORA</span><h2>Gestão segura de contas e valores</h2><p>Busque clientes, acompanhe carteiras e faça correções com confirmação e auditoria.</p></div>
+      <span className="vw11-intro-chip">Acesso restrito</span>
+    </section>
     <section className="admin-security-strip"><ShieldCheck size={21}/><div><strong>Administrador autenticado</strong><span>O acesso é validado no banco pelo UUID da conta administrativa.</span></div></section>
     <div className="admin-kpi-grid">
       <div className="admin-kpi"><span><Users/></span><small>Usuários</small><strong>{profiles.length}</strong><em>{holdings.length} participações</em></div>
@@ -135,9 +147,16 @@ export function AdminPage({records}:{records:AdminData}){
       <button type="button" onClick={()=>router.refresh()}>Atualizar painel</button>
       {syncInfo && <small role="status" style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",maxWidth:"100%"}}>{syncInfo}</small>}
     </div>
+    {walletMessage && <div className="vw11-feedback" role="status"><ShieldCheck size={17}/>{walletMessage}</div>}
     <div className="admin-tabs">{tabs.map(t=><button key={t} className={tab===t?"active":""} onClick={()=>{setTab(t);setQuery("")}}>{t}</button>)}</div>
     <section className="admin-table-card">
       <div className="admin-table-head"><div><span>{tab.toUpperCase()}</span><h2>{tab}</h2></div><label><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={tab==="Carteiras" ? "Buscar nome, e-mail, telefone ou ID" : `Buscar em ${tab.toLowerCase()}`}/></label></div>
+      {tab==="Carteiras" && <div className="vw11-wallet-toolbar">
+        <div className="vw11-wallet-filters">
+          {([ ["all","Todas"], ["positive","Com saldo"], ["zero","Zeradas"] ] as const).map(([value,label])=><button key={value} type="button" className={walletFilter===value?"active":""} onClick={()=>setWalletFilter(value)}>{label}</button>)}
+        </div>
+        <span>{filtered.length} carteira(s) encontrada(s)</span>
+      </div>}
       {!filtered.length ? <div className="empty"><h3>Nenhum registro</h3><p>Não há registros para os filtros atuais.</p></div>
       : tab==="Carteiras" ? <div className="ventora-wallet-grid">
         {filtered.map((wallet,i)=><article className="ventora-wallet-user-card" key={String(wallet.user_id||i)}>
@@ -154,9 +173,26 @@ export function AdminPage({records}:{records:AdminData}){
             <div><span>Ganhos acumulados</span><strong>{money(wallet.total_earned)}</strong></div>
           </div>
           <small className="ventora-wallet-user-id" title={String(wallet.user_id||"")}>ID: {String(wallet.user_id||"").slice(0,8)}…</small>
+          <div className="vw11-card-actions">
+            <button type="button" className="vw11-adjust-button" onClick={()=>{
+              setWalletMessage("");
+              setWalletEditor({userId:String(wallet.user_id),name:String(wallet.display_name||"Usuário"),email:String(wallet.display_email||""),currentBalance:Number(wallet.balance||0)});
+            }}><Pencil size={17}/> Ajustar saldo <ArrowUpRight size={17}/></button>
+            <span>Histórico registrado</span>
+          </div>
         </article>)}
       </div>
       : <div className="admin-list">{filtered.map((row,i)=><article key={String(row.id||i)}><div><strong>{primary(row,tab)}</strong><small>{detail(row,tab)}</small></div><span>{String(row.status || row.created_at || "")}</span></article>)}</div>}
     </section>
+    {/* vw11-wallet-editor-marker */}
+    {walletEditor && <AdminWalletEditor
+      target={walletEditor}
+      onClose={()=>setWalletEditor(null)}
+      onDone={(result)=>{
+        setWalletEditor(null);
+        setWalletMessage(`Ajuste ${result.alreadyApplied?"já registrado":"concluído"}. Novo saldo: ${money(result.newBalance)} (${result.delta>=0?"+":""}${money(result.delta)}).`);
+        router.refresh();
+      }}
+    />}
   </div>;
 }

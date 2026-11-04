@@ -36,7 +36,7 @@ export type WalletSummary = {
 
 export type WalletTransaction = {
   id: string;
-  type: "deposit" | "purchase" | "credit" | "withdrawal" | "refund" | "bonus";
+  type: "deposit" | "purchase" | "credit" | "withdrawal" | "refund" | "bonus" | "admin_credit" | "admin_debit";
   amount: number;
   description: string;
   status: "pending" | "completed" | "failed" | "cancelled";
