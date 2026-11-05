@@ -27,7 +27,10 @@ export async function POST(request: Request) {
     const db = await supabaseServer();
     const {data:{user}} = await db.auth.getUser();
     if (!user) return noStore({error:"Entre na sua conta."},401);
-    if (!withdrawalWindow()) return noStore({error:"Saques somente de segunda a sexta, das 9h às 18h (Brasília)."},403);
+    // O horário só pode ser ignorado por quem passou na verificação administrativa do banco.
+    const adminCheck = await db.rpc("admin_dashboard_snapshot");
+    const adminOverride = !adminCheck.error && adminCheck.data != null;
+    if (!withdrawalWindow() && !adminOverride) return noStore({error:"Saques somente de segunda a sexta, das 9h às 18h (Brasília)."},403);
     await rateLimit(`withdraw-request:${user.id}`,{limit:2,windowSeconds:60});
     await rateLimit(`withdraw-ip:${clientIp(request)}`,{limit:6,windowSeconds:60});
     const body = await readJsonBody(request);
@@ -50,9 +53,9 @@ export async function POST(request: Request) {
     if (type==="random" && !/^[0-9a-f-]{32,36}$/i.test(key))
       return noStore({error:"Chave PIX aleatória inválida."},400);
     const admin = supabaseAdmin();
-    const {data,error} = await admin.rpc("server_create_manual_withdrawal",{
+    const {data,error} = await admin.rpc("server_create_manual_withdrawal_admin_aware",{
       p_user_id:user.id,p_amount:amount,p_pix_key_type:type,p_pix_key:key,
-      p_receiver_national_registration:document,
+      p_receiver_national_registration:document,p_admin_override:adminOverride,
     });
     if(error){
       if(error.message.includes("Saques permitidos"))return noStore({error:error.message},403);
@@ -70,4 +73,16 @@ export async function POST(request: Request) {
   } catch(error) {
     return safeApiError(error);
   }
+}
+
+// Consulta segura para atualizar o botão. Não permite alterar privilégios pelo navegador.
+export async function GET() {
+  try {
+    const db = await supabaseServer();
+    const {data:{user}} = await db.auth.getUser();
+    if (!user) return noStore({allowed:false,admin:false},401);
+    const adminCheck = await db.rpc("admin_dashboard_snapshot");
+    const isAdmin = !adminCheck.error && adminCheck.data != null;
+    return noStore({allowed:withdrawalWindow() || isAdmin,admin:isAdmin});
+  } catch { return noStore({allowed:false,admin:false},503); }
 }

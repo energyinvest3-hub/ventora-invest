@@ -25,16 +25,20 @@ export function WithdrawalPage(){
   const [accepted,setAccepted]=useState(false);
   const [busy,setBusy]=useState(false);
   const [withdrawAllowed,setWithdrawAllowed]=useState(false);
+  const [admin24h,setAdmin24h]=useState(false);
   useEffect(()=>{
-    const check=()=>{
-      const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Sao_Paulo",weekday:"short",hour:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
-      const weekday=parts.find(p=>p.type==="weekday")?.value || "";
-      const hour=Number(parts.find(p=>p.type==="hour")?.value ?? "-1");
-      setWithdrawAllowed(!["Sat","Sun"].includes(weekday) && hour>=9 && hour<18);
+    let stopped=false;
+    const check=async()=>{
+      try {
+        const response=await fetch("/api/payments/pushinpay/withdraw",{cache:"no-store"});
+        if(!response.ok)throw new Error("Não foi possível conferir o horário.");
+        const result=await response.json();
+        if(!stopped){setWithdrawAllowed(result.allowed===true);setAdmin24h(result.admin===true);}
+      } catch { if(!stopped){setWithdrawAllowed(false);setAdmin24h(false);} }
     };
-    check();
-    const timer=window.setInterval(check,30000);
-    return ()=>window.clearInterval(timer);
+    void check();
+    const timer=window.setInterval(()=>void check(),60000);
+    return ()=>{stopped=true;window.clearInterval(timer);};
   },[]);
   const [done,setDone]=useState<string|null>(null);
   const numericAmount=parseBrlAmount(amount);
@@ -89,12 +93,12 @@ export function WithdrawalPage(){
 
   return <div className="withdraw-page">
     <Link href="/carteira" className="withdraw-back"><ArrowLeft size={17}/> Voltar à carteira</Link>
-    <header><span>SAQUE VIA PIX</span><h1>Solicitar saque</h1><p>Saques de segunda a sexta, das 9h às 18h (horário de Brasília). Taxa de 4% descontada do valor solicitado.</p></header>
+    <header><span>SAQUE VIA PIX</span><h1>Solicitar saque</h1><p>{admin24h?"Como administrador, você pode solicitar saques a qualquer horário.":"Saques de segunda a sexta, das 9h às 18h (horário de Brasília)."} Taxa de 4% descontada do valor solicitado.</p></header>
     <section className="withdraw-card">
       <div className="withdraw-balance"><WalletCards size={22}/><div><small>Saldo disponível</small><strong>{brl(balance)}</strong></div></div>
       <label className="withdraw-field"><span>Valor do saque</span><div className="withdraw-money"><b>R$</b><input inputMode="decimal" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0,00"/></div></label>
       <div className="ventora-withdrawal-rules" role="note">
-        <strong>Horário de saque: segunda a sexta, das 9h às 18h (Brasília)</strong>
+        <strong>{admin24h?"Administrador: saques liberados 24 horas":"Horário de saque: segunda a sexta, das 9h às 18h (Brasília)"}</strong>
         <p>{withdrawAllowed ? "Período de solicitação aberto." : "Solicitações indisponíveis neste horário ou em fins de semana."}</p>
         <p>Taxa de saque: <strong>4%</strong> (deduzida do valor solicitado).</p>
         {Number.isFinite(numericAmount) && numericAmount>0 && <p aria-live="polite">Valor solicitado: <strong>{brl(numericAmount)}</strong> · Taxa (4%): <strong>- {brl(feeAmount)}</strong> · PIX a receber: <strong style={{fontSize:20,color:"#087c73"}}>{brl(netAmount)}</strong></p>}
