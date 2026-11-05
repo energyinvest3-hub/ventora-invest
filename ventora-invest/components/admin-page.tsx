@@ -2,11 +2,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminWalletEditor, type WalletEditorTarget } from "./admin-wallet-editor";
+import { AdminWithdrawals } from "./admin-withdrawals";
 import { Activity, ArrowDownLeft, Gift, Search, ShieldCheck, Users, Wallet, Wind, Pencil, ArrowUpRight } from "lucide-react";
 
 type Row = Record<string, unknown>;
 type AdminData = Record<string, Row[]>;
-type Tab = "Usuários" | "Carteiras" | "Projetos" | "Participações" | "Depósitos" | "Transações" | "Indicações" | "Auditoria";
+type Tab = "Usuários" | "Carteiras" | "Projetos" | "Participações" | "Depósitos" | "Saques" | "Transações" | "Indicações" | "Auditoria";
 
 const tabKey: Record<Tab,string> = {
   "Usuários":"profiles",
@@ -14,6 +15,7 @@ const tabKey: Record<Tab,string> = {
   "Projetos":"wind_projects",
   "Participações":"user_projects",
   "Depósitos":"deposits",
+  "Saques":"withdrawals",
   "Transações":"transactions",
   "Indicações":"referrals",
   "Auditoria":"admin_audit_logs",
@@ -30,6 +32,7 @@ function primary(row:Row, tab:Tab){
   if(tab==="Projetos") return String(row.name || row.slug || "Projeto");
   if(tab==="Participações") return String(row.project_slug || row.id || "Participação");
   if(tab==="Depósitos") return String(row.gateway_id || row.id || "Depósito PIX");
+  if(tab==="Saques") return String(row.user_name || row.user_email || "Saque");
   if(tab==="Transações") return String(row.description || row.type || "Transação");
   if(tab==="Indicações") return String(row.referred_name || row.referred_id || "Indicação");
   return String(row.action || row.id || "Auditoria");
@@ -40,6 +43,7 @@ function detail(row:Row, tab:Tab){
   if(tab==="Projetos") return `${String(row.city||"")} / ${String(row.region||"")} · ${money(row.unit_value)}`;
   if(tab==="Participações") return `${Number(row.quantity||0)} unidade(s) · ${money(row.amount_invested)}`;
   if(tab==="Depósitos") return `${money(row.amount)} · ${String(row.provider_status||row.status||"")}`;
+  if(tab==="Saques") return `${money(row.amount)} · ${String(row.status||"")}`;
   if(tab==="Transações") return `${String(row.type||"")} · ${money(row.amount)}`;
   if(tab==="Indicações") return `${row.qualified ? "Qualificado" : "Em andamento"} · ${money(row.reward_amount)}`;
   return `${String(row.actor_email||"")} · ${String(row.created_at||"")}`;
@@ -138,6 +142,7 @@ export function AdminPage({records}:{records:AdminData}){
       <div className="admin-kpi"><span><Wind/></span><small>Total aplicado</small><strong>{money(sum(holdings,"amount_invested"))}</strong><em>{projects.length} projetos</em></div>
       <div className="admin-kpi"><span><ArrowDownLeft/></span><small>Depósitos confirmados</small><strong>{money(sum(deposits.filter(r=>r.status==="completed"),"amount"))}</strong><em>{deposits.filter(r=>r.status==="completed").length} PIX pagos</em></div>
       <div className="admin-kpi"><span><Activity/></span><small>Transações</small><strong>{tx.length}</strong><em>histórico financeiro</em></div>
+      <div className="admin-kpi"><span><ShieldCheck/></span><small>Saques pendentes</small><strong>{(records.withdrawals||[]).filter(r=>r.status==="pending"&&r.provider_status==="manual_pending").length}</strong><em>pagamento manual</em></div>
       <div className="admin-kpi"><span><Gift/></span><small>Indicações</small><strong>{refs.length}</strong><em>{refs.filter(r=>Boolean(r.qualified)).length} qualificadas</em></div>
     </div>
     <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:12,margin:"18px 0"}}>
@@ -157,7 +162,7 @@ export function AdminPage({records}:{records:AdminData}){
         </div>
         <span>{filtered.length} carteira(s) encontrada(s)</span>
       </div>}
-      {!filtered.length ? <div className="empty"><h3>Nenhum registro</h3><p>Não há registros para os filtros atuais.</p></div>
+      {tab==="Saques" ? <AdminWithdrawals rows={filtered}/> : !filtered.length ? <div className="empty"><h3>Nenhum registro</h3><p>Não há registros para os filtros atuais.</p></div>
       : tab==="Carteiras" ? <div className="ventora-wallet-grid">
         {filtered.map((wallet,i)=><article className="ventora-wallet-user-card" key={String(wallet.user_id||i)}>
           <div className="ventora-wallet-user-head">

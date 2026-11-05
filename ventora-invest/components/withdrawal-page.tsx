@@ -76,7 +76,7 @@ export function WithdrawalPage(){
       });
       const result=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(result.error||"Não foi possível solicitar o saque.");
-      setDone(result.message||"Saque enviado para processamento.");
+      setDone(result.message||"Solicitação registrada para pagamento manual.");
     }catch(error){
       showToast(error instanceof Error?error.message:"Não foi possível solicitar o saque.");
     }finally{setBusy(false)}
@@ -99,17 +99,17 @@ export function WithdrawalPage(){
         <p>Taxa de saque: <strong>4%</strong> (deduzida do valor solicitado).</p>
         {Number.isFinite(numericAmount) && numericAmount>0 && <p aria-live="polite">Valor solicitado: <strong>{brl(numericAmount)}</strong> · Taxa (4%): <strong>- {brl(feeAmount)}</strong> · PIX a receber: <strong style={{fontSize:20,color:"#087c73"}}>{brl(netAmount)}</strong></p>}
         <small>O cálculo atualiza enquanto você digita, sem precisar apagar ou digitar novamente.</small>
-        <small>Valor mínimo solicitado: R$ 1,05. O valor líquido é enviado por PIX; o total solicitado é debitado da carteira.</small>
+        <small>Valor mínimo solicitado: R$ 1,05. O líquido será pago manualmente pelo responsável após análise. O total solicitado fica reservado na carteira.</small>
       </div>
       {numericAmount>balance&&<p className="withdraw-error">Saldo insuficiente para este valor.</p>}
       <label className="withdraw-field"><span>Tipo de chave PIX</span><select value={pixKeyType} onChange={e=>setPixKeyType(e.target.value as PixType)}><option value="cpf">CPF</option><option value="email">E-mail</option><option value="phone">Telefone</option><option value="random">Chave aleatória</option></select></label>
       <label className="withdraw-field"><span>Chave PIX</span><input value={pixKey} onChange={e=>setPixKey(e.target.value)} placeholder={pixKeyType==="phone"?"+5511999999999":"Informe sua chave PIX"}/></label>
       <label className="withdraw-field"><span>CPF/CNPJ do titular da chave</span><input inputMode="numeric" value={document} onChange={e=>setDocument(e.target.value)} placeholder="Somente números"/></label>
       <label className="withdraw-confirm"><input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)}/><span>Confirmo meus dados PIX, o desconto de 4% no valor a receber e que não repetirei a solicitação enquanto estiver em processamento.</span></label>
-      <div className="withdraw-info"><ShieldCheck size={19}/><p>O valor é reservado antes do envio. Se a PushinPay recusar o saque definitivamente, ele volta automaticamente para a carteira.</p></div>
+      <div className="withdraw-info"><ShieldCheck size={19}/><p>A solicitação vai para análise no painel administrativo. O pagamento é feito manualmente pelo responsável, fora da plataforma. Se for cancelada antes do pagamento, o valor integral retorna à carteira.</p></div>
       {balance<1.05 && <p className="withdraw-error" role="alert">Seu saldo é {brl(balance)}. O saque mínimo é R$ 1,05.</p>}
       {Number.isFinite(numericAmount) && numericAmount>0 && numericAmount<1.05 && balance>=1.05 && <p className="withdraw-error" role="alert">Informe pelo menos R$ 1,05 para solicitar o saque.</p>}
-      <button className="withdraw-primary" type="button" disabled={busy} onClick={submit}>{busy?"Enviando...":<>Solicitar saque <ArrowUpRight size={17}/></>}</button>
+      <button className="withdraw-primary" type="button" disabled={busy} onClick={submit}>{busy?"Registrando...":<>Solicitar saque <ArrowUpRight size={17}/></>}</button>
     </section>
   </div>;
 }

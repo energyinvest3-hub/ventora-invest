@@ -9,7 +9,11 @@ export default async function Admin() {
   const { data: { user } } = await db.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data, error } = await db.rpc("admin_dashboard_snapshot");
-  if (error || !data) redirect("/perfil");
-  return <AdminPage records={data as Record<string, Record<string, unknown>[]>}/>;
+  const [dashboard, withdrawalList] = await Promise.all([
+    db.rpc("admin_dashboard_snapshot"),
+    db.rpc("admin_withdrawals_snapshot"),
+  ]);
+  if (dashboard.error || !dashboard.data || withdrawalList.error || !withdrawalList.data) redirect("/perfil");
+  return <AdminPage records={{...(dashboard.data as Record<string, Record<string, unknown>[]>),
+    withdrawals: withdrawalList.data as Record<string, unknown>[]}}/>;
 }
