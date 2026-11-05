@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     if(!row?.id)return noStore({error:"Solicitação não confirmada pelo banco."},503);
     return noStore({ok:true,withdrawal:{id:row.id,status:"pending",amount:Number(row.amount),
       feeAmount:Number(row.fee_amount),netAmount:Number(row.net_amount)},
-      message:"Saque solicitado com sucesso. O valor está reservado e aguarda pagamento manual pelo responsável."});
+      message:"Saque solicitado com sucesso. Em breve o valor será enviado para a conta informada."});
   } catch(error) {
     return safeApiError(error);
   }
